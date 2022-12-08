@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Store } from '@ngxs/store';
+import { catchError, debounceTime, distinctUntilChanged, fromEvent, map, Observable, of, switchMap } from 'rxjs';
 import { AddProduct } from 'src/app/core/actions/ProductAction';
 import { Product } from 'src/app/core/model/product';
 import { DataService } from '../../services/data/data.service';
@@ -12,7 +12,11 @@ import { DataService } from '../../services/data/data.service';
 })
 export class DisplayCatalogComponent implements OnInit {
   products: Product[];
-  search = new FormControl('');
+
+  model: Observable<any>;
+  searchField$: Observable<string>;
+  @ViewChild('input', { static: true }) input: ElementRef;
+
 
   constructor(private dataService: DataService, private store: Store) {
   }
@@ -23,14 +27,18 @@ export class DisplayCatalogComponent implements OnInit {
   }
 
   getCatalogueObject() {
-    this.dataService.getCatalogues().subscribe({
-      next: (products) => {
-        this.products = products;
-      },
-      error: (err) => {
-        console.log(err);
-      }
-    });
+    this.searchField$ = fromEvent(this.input.nativeElement, 'keyup');
+    this.model = this.searchField$.pipe(
+      map((event: any) => event.target.value),
+      debounceTime(1000),
+      distinctUntilChanged(),
+
+      switchMap((query: string) => this.dataService.getCatalogueFromTerm(query).pipe(
+        catchError(() => {
+          return of([]);
+        })
+      ))
+    );
   }
 
   updateList(event: Product[]) {

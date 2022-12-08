@@ -42,4 +42,8 @@ export class DataService {
   getCatalogue(id: number): Observable<Product> {
     return this.client.get<Product>(environment.apiUrl + '/product/' + id, this.httpOptions);
   }
+
+  getCatalogueFromTerm(term: string): Observable<Product[]> {
+    return this.client.get<Product[]>(environment.apiUrl + '/product/' + term, this.httpOptions);
+  }
 }

@@ -1,8 +1,13 @@
 <div>
   <h1>Catalogue</h1>
-  <app-search-bar [property]="'name'" [list]="products" (filterResult)="updateList($event)"
+
+  <div class="form-group">
+    <label for="product-search">Recherche d'un produit :</label>
+    <input #input id="product-search" type="text" class="form-control" placeholder="Nom du produit" />
+  </div>
+  <!-- <app-search-bar [property]="'name'" [list]="products" (filterResult)="updateList($event)"
     (filterReset)="getCatalogueObject()">
-  </app-search-bar>
+  </app-search-bar> -->
 
   <div *ngIf="products" class="flex">
     <div *ngFor="let product of products">

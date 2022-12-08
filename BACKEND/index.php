@@ -44,18 +44,6 @@ $options = [
     }
 ];
 
-function addHeaders (Response $response) : Response {
-    $response = $response
-    ->withHeader("Content-Type", "application/json")
-    ->withHeader('Access-Control-Allow-Origin', 'http://localhost:4200, https://tp05-florian-metz.onrender.com')
-    ->withHeader('Access-Control-Allow-Headers', 'Content-Type,  Authorization')
-    ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-    ->withHeader('Access-Control-Expose-Headers', 'Authorization');
-
-    return $response;
-}
-
-
 $app->get('/api/hello/{name}', function (Request $request, Response $response, $args) {
     $array = [];
     $array["nom"] = $args['name'];
@@ -98,7 +86,6 @@ $app->get('/api/user', function (Request $request, Response $response, $args) {
 //get all product from ./mock/products.json
 $app->get('/api/product', function (Request $request, Response $response, $args) {
     $json = file_get_contents("./mock/products.json");
-    $response = addHeaders($response);
     $response->getBody()->write($json);
     return $response;
 });
@@ -109,7 +96,21 @@ $app->get('/api/product/{id}', function (Request $request, Response $response, $
     $array = json_decode($json, true);
     $id = $args ['id'];
     $array = $array[$id];
-    $response = addHeaders($response);
+    $response->getBody()->write(json_encode ($array));
+    return $response;
+});
+
+//get product by term from ./mock/products.json
+$app->get('/api/product/{term}', function (Request $request, Response $response, $args) {
+    $json = file_get_contents("./mock/products.json");
+    $array = json_decode($json, true);
+    $id = $args ['term'];
+    $newArray = [];
+    foreach ($array as $key => $value) {
+        if (strpos($value['name'], $id) !== false || strpos($value['description'], $id) !== false) {
+            $newArray[] = $value;
+        }
+    }
     $response->getBody()->write(json_encode ($array));
     return $response;
 });
@@ -117,4 +118,10 @@ $app->get('/api/product/{id}', function (Request $request, Response $response, $
 #endregion
 
 $app->add(new Tuupola\Middleware\JwtAuthentication($options));
+$app->add(new Tuupola\Middleware\CorsMiddleware([
+    "origin" => ["*"],
+    "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    "headers.allow" => ["Authorization", "Content-Type"],
+    "headers.expose" => ["Authorization"],
+]));
 $app->run();
