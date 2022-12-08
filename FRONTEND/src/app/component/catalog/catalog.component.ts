@@ -22,7 +22,9 @@ export class DisplayCatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getCatalogueObject();
+    this.dataService.getCatalogues().subscribe((data) => {
+      this.products = data;
+    });
   }
 
   getCatalogueObject() {
