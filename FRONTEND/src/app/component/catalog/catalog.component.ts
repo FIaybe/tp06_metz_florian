@@ -23,7 +23,6 @@ export class DisplayCatalogComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCatalogueObject();
-
   }
 
   getCatalogueObject() {
@@ -39,10 +38,9 @@ export class DisplayCatalogComponent implements OnInit {
         })
       ))
     );
-  }
-
-  updateList(event: Product[]) {
-    this.products = event;
+    this.model.subscribe((data) => {
+      this.products = data;
+    });
   }
 
   addToShoppingList(product: Product) {
