@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   catalogue: '/assets/products.json',
-  apiUrl: 'https://met-02-metz-florian.onrender.com/api'
+  apiUrl: 'http://localhost:5001/api'
 };
 
 /*
